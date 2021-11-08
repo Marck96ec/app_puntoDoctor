@@ -1,18 +1,20 @@
 import React from "react";
 import {  StyleSheet ,View , Text, Image} from "react-native";
+import { KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
+import RegisterForm from "../../components/Account/RegisterForm";
 
 export default function Register() {
     return (
-        <View>
+        <KeyboardAwareScrollView>
            <Image 
                 source={require("../../../assets/img/icono.png")}
                 resizeMode="contain"
                 style={styles.logo}
            />
            <View style={styles.viewForm}>
-                <Text>Register Form</Text>
+                <RegisterForm />
             </View>
-        </View>
+        </KeyboardAwareScrollView>
         
     )
 }
