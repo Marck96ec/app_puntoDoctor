@@ -25,7 +25,7 @@ export default function Navigation() {
                 initialRouteName="doctors"
                 tabBarOptions={{
                     inactiveTintColor: "#646464",
-                    activeTintColor: "#00A798",
+                    activeTintColor: "#2D6974",
                 }}
                 screenOptions={({ route }) => ({
                     tabBarIcon: ({ color }) => screenOptions(route, color),

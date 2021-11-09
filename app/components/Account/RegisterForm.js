@@ -1,14 +1,20 @@
 import React, {useState} from "react";
 import {StyleSheet,View} from "react-native";
 import { Input, Icon, Button } from "react-native-elements";
+import Loading from "../Loading";
 import { validateEmail } from "../../utils/validations";
 import { size , isEmpty} from "lodash";
+import * as firebase from "firebase";
+import { useNavigation } from "@react-navigation/native";
+
 
 export default function RegisterForm(props) {
     const { toastRef } = props;
     const [showPassword, setShowPassword] = useState(false);
     const [showRepeatPassword, setShowRepeatPassword] = useState(false);
     const [formData, setFormData] = useState(defaultFormValue());
+    const [loading, setLoading] = useState(false);
+    const navigation = useNavigation();
 
     const onSubmit = () => {
         if (
@@ -28,7 +34,22 @@ export default function RegisterForm(props) {
             //console.log("La contraseña tiene que tener al menos 6 caracteres");
             toastRef.current.show("La contraseña tiene que tener al menos 6 caracteres");
         }else{
-            console.log("ok");
+            //console.log("ok");
+            setLoading(true);
+            firebase
+            .auth()
+            .createUserWithEmailAndPassword(formData.email, formData.password)
+            .then(
+                () => {
+                    setLoading(false);
+                    navigation.navigate("account");
+                }
+            )
+            .catch(() => {
+                //console.log(err);
+                setLoading(false);
+                toastRef.current.show("El email ya esta en uso pruebe con otro.");
+            });
         }
 
     }
@@ -89,6 +110,7 @@ export default function RegisterForm(props) {
                 buttonStyle={styles.btnRegister}
                 onPress={onSubmit}
             />
+            <Loading isVisible={loading} text="Creando cuenta"/>
         </View>
     )
 }
@@ -118,7 +140,7 @@ const styles = StyleSheet.create({
 
     },
     btnRegister:{
-        backgroundColor: "#00A798",
+        backgroundColor: "#2D6974",
 
     },
     iconRight:{

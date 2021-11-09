@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
             justifyContent: "center",
     },
     text: {
-        color: "#00A798",
+        color: "#2D6974",
         textTransform: "uppercase",
         marginTop: 10
     }
