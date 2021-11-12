@@ -1,6 +1,7 @@
 import React from 'react';
 import {createStackNavigator} from "@react-navigation/stack";
-import Doctors from '../screens/Doctors';
+import Doctors from '../screens/Doctors/Doctors';
+import AddDoctor from '../screens/Doctors/AddDoctors';
 
 const Stack = createStackNavigator();
 
@@ -11,6 +12,11 @@ export default function DoctorsStack() {
                 name="doctors"
                 component={Doctors}
                 options={{ title: "Doctor"}}
+            />
+            <Stack.Screen 
+                name="add-doctor"
+                component={AddDoctor}
+                options={{ title: "Añadir nuevo doctor"}}
             />
         </Stack.Navigator>
     )
