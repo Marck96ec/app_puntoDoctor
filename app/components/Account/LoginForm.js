@@ -23,7 +23,7 @@ export default function LoginForm(props) {
             toastRef.current.show("Todos los campos son obligatorios");
         }else if (!validateEmail(formData.email)) {
             toastRef.current.show("El email no es correcto");
-        }else{
+        }else{ 
             setLoading(true);
             firebase
             .auth()
