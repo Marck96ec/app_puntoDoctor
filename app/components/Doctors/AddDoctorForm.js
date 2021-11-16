@@ -12,6 +12,8 @@ import Modal from "../Modal";
 import { firebaseApp } from "../../utils/firebase";
 import firebase from "firebase/app";
 import "firebase/storage";
+import "firebase/firestore";
+const db = firebase.firestore(firebaseApp);
 
 const widthScreen = Dimensions.get("window").width;
 
@@ -22,12 +24,14 @@ export default function AddDoctorForm(props) {
     const [doctorName, setDoctorName] = useState("");
     const [doctorAddress, setDoctorAddress] = useState("");
     const [doctorDescription, setDoctorDescription] = useState("");
+    const [doctorcategoria, setDoctorcategoria] = useState("");
+    const [doctorprecio, setDoctorPrecio] = useState("");
     const [imagesSelected, setImagesSelected] = useState([]);
     const [isVisibleMap, setIsVisibleMap] = useState(false);
     const [locationDoctor, setLocationDoctor] = useState(null);
 
     const AddDoctor = () => {
-        if(!doctorName || !doctorAddress || !doctorDescription){
+        if(!doctorName || !doctorAddress || !doctorDescription || !doctorcategoria || !doctorprecio){
             toastRef.current.show("Todos los campos del formulario son obligatorios");
         }else if (size(imagesSelected) === 0) {
             toastRef.current.show("El Consultorio tiene que tenerl almenos una foto");
@@ -35,35 +39,62 @@ export default function AddDoctorForm(props) {
             toastRef.current.show("Tienes que localizar el consultorio en el mapa");
         }else {
             setIsLoading(true);
-            uploadImageStorage().then(response => {
-                setIsLoading(false);
+            uploadImageStorage().then((response) => {
+                db.collection("consultorios")
+                    .add({
+                        name: doctorName,
+                        addres: doctorAddress,
+                        description: doctorDescription,
+                        location: locationDoctor,
+                        images: response,
+                        rating: 0,
+                        ratingTotal: 0,
+                        quantityVoting: 0,
+                        createAt: new Date(),
+                        createBy: firebase.auth().currentUser.uid,
+                        categoria: doctorcategoria,
+                        existencia: true,
+                        precio: doctorprecio,
+                    })
+                    .then(() => {
+                        //console.log("ok");
+                        setIsLoading(false);
+                        navigation.navigate("doctors");
+                    })
+                    .catch(() => {
+                        setIsLoading(false);
+                        toastRef.current.show(
+                            "Error al subir el restaurante, intentelo más tarde"
+                        );
+                    })
             });
         }
     }
 
     const uploadImageStorage = async () => {
-
+       
         const imageBlob = [];
 
-        Promise.all(
-            map(imagesSelected, async image => {
-                const response = await fetch(image)
+         await Promise.all(
+            map(imagesSelected, async (image) => {
+                const response = await fetch(image);
+                //console.log(JSON.stringify(response));
                 const blob = await response.blob();
                 const name = uuid();
-                const ref = firebase.storage().ref("consultorios").child(name);
+                const ref = firebase.storage().ref("consultorios").child(uuid());
                 await ref.put(blob).then(async result => {
                     await firebase
                         .storage()
-                        .ref(`consultorios/${name}`)
+                        .ref(`consultorios/${result.metadata.name}`)
                         .getDownloadURL()
                         .then( (photoUrl) => {
                             imageBlob.push(photoUrl);
+                            //console.log(photoUrl);
                         });
                 });
             })
         );
 
-        
 
         return imageBlob;
     }
@@ -75,12 +106,14 @@ export default function AddDoctorForm(props) {
                 setDoctorName={setDoctorName}
                 setDoctorAddress={setDoctorAddress}
                 setDoctorDescription={setDoctorDescription}
+                setDoctorcategoria = {setDoctorcategoria}
+                setDoctorPrecio = {setDoctorPrecio}
                 setIsVisibleMap={setIsVisibleMap}
                 locationDoctor={locationDoctor}
             />
             <UploadImage toastRef={toastRef} imagesSelected={imagesSelected} setImagesSelected={setImagesSelected} />
             <Button 
-                title="Crear Doctor"
+                title="Crear Consultorio"
                 onPress={AddDoctor}
                 buttonStyle={styles.btnAddDoctor}
             />
@@ -112,13 +145,23 @@ function ImageDoctor(props) {
 }
 
 function FormAdd(props) {
-    const { setDoctorName, setDoctorAddress, setDoctorDescription, setIsVisibleMap, locationDoctor} = props;
+    const { setDoctorName, setDoctorAddress, setDoctorDescription, setDoctorcategoria, setDoctorPrecio , setIsVisibleMap, locationDoctor} = props;
     return (
         <View style={styles.viewForm}>
             <Input 
-                placeholder="Nombre del Doctor"
+                placeholder="Nombre del Consultorio"
                 containerStyle={styles.input}
                 onChange={e => setDoctorName(e.nativeEvent.text)}
+            />
+            <Input 
+                placeholder="Categoria"
+                containerStyle={styles.input}
+                onChange={e => setDoctorcategoria(e.nativeEvent.text)}
+            />
+            <Input 
+                placeholder="Precio"
+                containerStyle={styles.input}
+                onChange={e => setDoctorPrecio(e.nativeEvent.text)}
             />
             <Input 
                 placeholder="Dirección"
@@ -132,7 +175,7 @@ function FormAdd(props) {
                 }}
             />
             <Input 
-                placeholder="Descripción del Doctor"
+                placeholder="Descripción del Consultorio"
                 multiline={true}
                 inputContainerStyle={styles.textArea}
                 onChange={e => setDoctorDescription(e.nativeEvent.text)}

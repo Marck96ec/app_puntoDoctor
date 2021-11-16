@@ -20,6 +20,12 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.puntodoctor",
+      "config":{
+        "googleMaps": {
+          "apikey": "AIzaSyAq0fKiZZxdVT-6k889vPpMsilBspcEQa4"
+        }
+      },
       "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE", "MEDIA_LIBRARY","CAMERA_ROLL","LOCATION","ACCESS_COARSE_LOCATION","ACCESS_FINE_LOCATION"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -31,4 +37,6 @@
     },
     "description": ""
   }
+
+  
 }

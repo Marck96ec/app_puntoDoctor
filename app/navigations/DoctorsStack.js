@@ -11,12 +11,12 @@ export default function DoctorsStack() {
             <Stack.Screen 
                 name="doctors"
                 component={Doctors}
-                options={{ title: "Doctor"}}
+                options={{ title: "Consultorio"}}
             />
             <Stack.Screen 
                 name="add-doctor"
                 component={AddDoctor}
-                options={{ title: "Añadir nuevo doctor"}}
+                options={{ title: "Añadir nuevo consultorio"}}
             />
         </Stack.Navigator>
     )
