@@ -31,7 +31,7 @@ export default function ListDoctors(props) {
 
 function Consultorio(props) {
     const {consultorio, navigation} = props;
-    const {images, name, addres, description} = consultorio.item;
+    const {id, images, name, addres, description} = consultorio.item;
     const imageConsultorio = images[1];
     const imageDoctor = images[0];
 
