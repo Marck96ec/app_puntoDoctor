@@ -13,7 +13,7 @@ export default function CarouselImages(props) {
 
     return (
         <Carousel 
-            layout={"default"}
+        layout={'tinder'} 
             data={arrayImages}
             sliderWidth={width}
             itemWidth={width}

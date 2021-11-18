@@ -17,7 +17,7 @@ export default function Doctors(props) {
     const [totalConsultorios, setTotalConsultorios] = useState(0);
     const [startConsultorios, setStartConsultorios] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const limitConsultorios = 6;
+    const limitConsultorios = 7;
 
     useEffect(() => {
         firebase.auth().onAuthStateChanged((userInfo) => {
@@ -27,18 +27,20 @@ export default function Doctors(props) {
 
     useFocusEffect(
         useCallback(() => {
-            db.collection("consultorios").get().then((snap) => {
+            db.collection("consultorios").where('existencia', '==', true).onSnapshot((snap) => {
                 setTotalConsultorios(snap.size);
             });
     
-            const resultConsultorios = [];
+            
     
             db.collection("consultorios")
+            .where('existencia', '==', true)
             .orderBy("createAt", "desc")
-            .limit(limitConsultorios).get().then((response) => {
+            .limit(limitConsultorios).onSnapshot((response) => {
                 setStartConsultorios(response.docs[response.docs.length -1]);
-    
+                const resultConsultorios = [];
                 response.forEach((doc) => {
+                    
                     const consultorio = doc.data();
                     consultorio.id = doc.id;
                     resultConsultorios.push(consultorio);
@@ -56,6 +58,7 @@ export default function Doctors(props) {
         consultorios.length < totalConsultorios && setIsLoading(true);
 
         db.collection("consultorios")
+        .where('existencia', '==', true)
             .orderBy("createAt", "desc")
             .startAfter(startConsultorios.data().createAt)
             .limit(limitConsultorios)
@@ -66,8 +69,9 @@ export default function Doctors(props) {
                 }else {
                     setIsLoading(false);
                 }
-
+                
                 response.forEach((doc) => {
+                   
                     const consultorio = doc.data();
                     consultorio.id = doc.id;
                     resultConsultorios.push( consultorio );

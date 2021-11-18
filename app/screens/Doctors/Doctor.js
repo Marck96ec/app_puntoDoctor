@@ -13,7 +13,7 @@ const db = firebase.firestore(firebaseApp);
 const screenWidth = Dimensions.get("window").width;
 
 export default function Doctor(props) {
-    console.log(props);
+    
     const {navigation, route} = props;
     const {id, name } = route.params;
     const [consultorio, setConsultorio] = useState(null);
@@ -24,8 +24,8 @@ export default function Doctor(props) {
     useEffect(() => {
         db.collection("consultorios")
         .doc(id)
-        .get()
-        .then((response) => {
+        //.get()
+        .onSnapshot((response) => {
             const data = response.data();
             data.id = response.id;
             setConsultorio(data);
