@@ -8,6 +8,7 @@ import Map from '../../components/Map';
 
 import { firebaseApp } from "../../utils/firebase";
 import firebase from "firebase/app";
+import ListReviews from '../../components/Doctors/ListReviews';
 
 const db = firebase.firestore(firebaseApp);
 const screenWidth = Dimensions.get("window").width;
@@ -53,6 +54,11 @@ export default function Doctor(props) {
                 address={consultorio.addres}
                 precio={consultorio.precio}
             />
+            <ListReviews 
+                navigation={navigation}
+                idDoctor={consultorio.id}
+                setRating={setRating}
+            />
         </ScrollView>
     )
 }
@@ -92,12 +98,7 @@ function ConsultorioInfo(props){
         iconType: "material-community",
         action: null,
         },
-        {
-        text: "Agendar Cita",
-        iconName: "briefcase-plus",
-        iconType: "material-community",
-        action: null,
-        },
+
 
 ];
 
