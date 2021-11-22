@@ -1,7 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect , useCallback } from 'react';
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
 import { map } from "lodash";
 import { Rating, ListItem, Icon } from "react-native-elements";
+import { useFocusEffect } from "@react-navigation/native";
 import Loading from "../../components/Loading";
 import Carousel from '../../components/Carousel';
 import Map from '../../components/Map';
@@ -22,17 +23,21 @@ export default function Doctor(props) {
 
     navigation.setOptions({ title: name });
 
-    useEffect(() => {
-        db.collection("consultorios")
-        .doc(id)
-        //.get()
-        .onSnapshot((response) => {
-            const data = response.data();
-            data.id = response.id;
-            setConsultorio(data);
-            setRating(data.rating);
-        });
-    }, [])
+    useFocusEffect(
+        useCallback(() => {
+            db.collection("consultorios")
+            .doc(id)
+            //.get()
+            .onSnapshot((response) => {
+                const data = response.data();
+                data.id = response.id;
+                setConsultorio(data);
+                setRating(data.rating);
+            });
+        }, [])
+    );
+
+    
 
     if(!consultorio) return <Loading isVisible={true} text="Cargando..." />
 
@@ -57,7 +62,7 @@ export default function Doctor(props) {
             <ListReviews 
                 navigation={navigation}
                 idDoctor={consultorio.id}
-                setRating={setRating}
+                
             />
         </ScrollView>
     )
