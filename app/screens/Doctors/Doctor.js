@@ -1,8 +1,9 @@
-import React, {useState, useEffect , useCallback } from 'react';
+import React, {useState, useEffect , useCallback, useRef } from 'react';
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
 import { map } from "lodash";
 import { Rating, ListItem, Icon } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/native";
+import Toast from "react-native-easy-toast";
 import Loading from "../../components/Loading";
 import Carousel from '../../components/Carousel';
 import Map from '../../components/Map';
@@ -20,8 +21,15 @@ export default function Doctor(props) {
     const {id, name } = route.params;
     const [consultorio, setConsultorio] = useState(null);
     const [rating, setRating] = useState(0);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [userLogged, setUserLogged] = useState(false);
+    const toastRef = useRef();
 
     navigation.setOptions({ title: name });
+
+    firebase.auth().onAuthStateChanged((user) => {
+        user ? setUserLogged(true) : setUserLogged(false);
+    })
 
     useFocusEffect(
         useCallback(() => {
@@ -37,12 +45,79 @@ export default function Doctor(props) {
         }, [])
     );
 
-    
+    useEffect(() => {
+        if (userLogged && consultorio) {
+            db.collection("favorites")
+                .where("idConsultorio", "==", consultorio.id)
+                .where("idUser", "==", firebase.auth().currentUser.uid)
+                .get()
+                .then((response) => {
+                    if(response.docs.length === 1){
+                        setIsFavorite(true);
+                    }
+                })
+        }
+        
+    }, [userLogged, consultorio])
+
+    const addFavorite = () => {
+        if (!userLogged) {
+            toastRef.current.show("Para usar el sistema de favoritos tienes que estar logueado");
+        }else {
+            const payload = {
+                idUser: firebase.auth().currentUser.uid,
+                idConsultorio: consultorio.id
+            }
+            db.collection("favorites")
+                .add(payload)
+                .then(() =>{
+                    setIsFavorite(true);
+                    toastRef.current.show("Restaurante añadido a favoritos");
+                })
+                .catch(() => {
+                    toastRef.current.show("Error al añadir el consultorio a favoritos");
+                })
+        }
+    }
+
+    const removeFavorite = () => {
+        db.collection("favorites")
+            .where("idConsultorio", "==", consultorio.id)
+            .where("idUser", "==", firebase.auth().currentUser.uid)
+            .get()
+            .then((response) => {
+                response.forEach((doc) => {
+                    const idFavorite = doc.id;
+                    db.collection("favorites")
+                    .doc(idFavorite)
+                    .delete()
+                    .then(() => {
+                        setIsFavorite(false);
+                        toastRef.current.show("Consultorio eliminado de favoritos");
+                    })
+                    .catch(() => {
+                        toastRef.current.show(
+                            "Error al eliminar el consultorio de favoritos"
+                        );
+                    })
+                })
+            })
+    }
 
     if(!consultorio) return <Loading isVisible={true} text="Cargando..." />
 
     return (
         <ScrollView vertical style={styles.viewBody}>
+            <View style={styles.viewFavorite}>
+                <Icon
+                    type="material-community"
+                    name={isFavorite ? "heart" : "heart-outline"}
+                    onPress={isFavorite ? removeFavorite : addFavorite}
+                    color={isFavorite ? "#f00" : "#000"}
+                    size={35}
+                    underlayColor="transparent"
+                />
+            </View>
             <Carousel 
                 arrayImages={consultorio.images}
                 height={250}
@@ -63,6 +138,11 @@ export default function Doctor(props) {
                 navigation={navigation}
                 idDoctor={consultorio.id}
                 
+            />
+            <Toast 
+                ref={toastRef}
+                position="center"
+                opacity={0.9}
             />
         </ScrollView>
     )
@@ -166,4 +246,15 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
 
     },
+    viewFavorite:{
+        position: "absolute",
+        top: 0,
+        right: 0,
+        zIndex: 2,
+        backgroundColor: "#fff",
+        borderBottomLeftRadius: 100,
+        padding: 5,
+        paddingLeft: 5,
+
+    }
 });

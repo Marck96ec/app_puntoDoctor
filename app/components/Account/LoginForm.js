@@ -14,6 +14,8 @@ export default function LoginForm(props) {
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
 
+  
+
     const onChange = (e, type) => {
         setFormData({ ...formData, [type]: e.nativeEvent.text });
     }
