@@ -19,6 +19,7 @@
     "expo-media-library": "^13.0.3",
     "expo-status-bar": "~1.1.0",
     "firebase": "~7.9.0",
+    "firesql": "~2.0.2",
     "lodash": "^4.17.21",
     "random-uuid-v4": "^0.0.9",
     "react": "17.0.1",
